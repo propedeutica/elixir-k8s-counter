@@ -62,7 +62,7 @@ defmodule Counter.MixProject do
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
-      {:excoveralls, "~> 0.16.0", only: [:test, :dev]}
+      {:excoveralls, "~> 0.18.0", only: [:test, :dev]}
     ]
   end
 
