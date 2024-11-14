@@ -21,13 +21,19 @@ ARG RUNNER_IMAGE="debian:${DEBIAN_VERSION}"
 
 FROM ${BUILDER_IMAGE} AS builder
 
+ENV SRC_CODE=${SOURCE_CODE_URL}
+
+# Setting up locale so it does not complain about misconfigured latin1
+ENV LC_ALL=C.UTF-8
+ENV LANG=C.UTF-8
+ENV CODE=/app
+
 # install build dependencies
 RUN apt-get update -y && apt-get install -y build-essential git \
-   && apt-get clean && rm -f /var/lib/apt/lists/*_*
-
+    && apt-get clean && rm -f /var/lib/apt/lists/*_*
 
 # prepare build dir
-WORKDIR /app
+WORKDIR ${CODE}
 
 # install hex + rebar
 RUN mix local.hex --force && \
@@ -63,7 +69,7 @@ RUN mix compile
 COPY config/runtime.exs config/
 
 COPY rel rel
-RUN mix release
+RUN mix release --path /app_release
 
 # start a new build stage so that the final image will only contain
 # the compiled release and other runtime necessities
@@ -73,27 +79,28 @@ RUN apt-get update -y && \
     apt-get install -y libstdc++6 openssl libncurses5 locales ca-certificates \
     && apt-get clean && rm -f /var/lib/apt/lists/*_*
 
-# Set the locale
-RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
+ARG MIX_ENV=prod
+ARG SECRET_KEY_BASE
 
-ENV LANG=en_US.UTF-8
-ENV LANGUAGE=en_US:en
-ENV LC_ALL=en_US.UTF-8
+WORKDIR /deploy/
+ENV HOME=/deploy
+ENV MIX_ENV=${MIX_ENV}
 
-WORKDIR "/app"
-RUN chown nobody /app
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
+ENV SECRET_KEY_BASE=${SECRET_KEY_BASE}
 
-# set runner ENV
-ENV MIX_ENV="prod"
+# # Copying source code to the destination
+COPY --from=builder --chown=nobody:root /app_release/ ./
 
-# Only copy the final release from the build stage
-COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/counter ./
 
+# # This will be updated to a random user
 USER nobody
-
+EXPOSE 4000
 # If using an environment that doesn't automatically reap zombie processes, it is
 # advised to add an init process such as tini via `apt-get install`
 # above and adding an entrypoint. See https://github.com/krallin/tini for details
 # ENTRYPOINT ["/tini", "--"]
 
-CMD ["/app/bin/server"]
+CMD ["/deploy/bin/server"]
