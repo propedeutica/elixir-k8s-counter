@@ -51,4 +51,4 @@ jobs:
           file: ./Dockerfile
           labels: ${{ steps.meta.outputs.labels }}
         env:
-          ERL_FLAGS: "+JMsingle true"
+          ERL_FLAGS: "+JPperf true"

@@ -45,6 +45,7 @@ ENV MIX_ENV="prod"
 # ENV ERL_FLAGS="+JMsingle true"
 ARG ERL_FLAGS=""
 ENV ERL_FLAGS=${ERL_FLAGS}
+RUN echo "ERL FLAGS FOR THE BUILD: " $ERL_FLAGS
 
 
 # install mix dependencies
