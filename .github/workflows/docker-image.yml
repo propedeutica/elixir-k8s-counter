@@ -41,6 +41,9 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
+      # Workaround for the problem with QEMU. Delete as soon as QEMU 8.1 is part of the build
+      - name: Set env
+        run: echo ERL_FLAGS="+JMsingle true" >> $GITHUB_ENV
       - name: Build and push the Docker image
         uses: docker/build-push-action@v6
         with:
@@ -50,5 +53,3 @@ jobs:
           tags: ghcr.io/${{ env.IMAGE_NAME }}:${{ github.sha }},ghcr.io/${{ env.IMAGE_NAME }}:latest
           file: ./Dockerfile
           labels: ${{ steps.meta.outputs.labels }}
-        env:
-          ERL_FLAGS: "+JPperf true"
