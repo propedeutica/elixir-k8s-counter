@@ -14,14 +14,13 @@
 ARG ELIXIR_VERSION=1.17.3
 ARG OTP_VERSION=27.1.2
 ARG DEBIAN_VERSION=bullseye-20241016-slim
-ARG SOURCE_CODE_URL="."
 
 ARG BUILDER_IMAGE="docker.io/hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION}"
 ARG RUNNER_IMAGE="debian:${DEBIAN_VERSION}"
 
 FROM ${BUILDER_IMAGE} AS builder
 
-ENV SRC_CODE=${SOURCE_CODE_URL}
+ENV SRC_CODE="."
 
 # Setting up locale so it does not complain about misconfigured latin1
 ENV LC_ALL=C.UTF-8
@@ -41,6 +40,7 @@ RUN mix local.hex --force && \
 
 # set build ENV
 ENV MIX_ENV="prod"
+ENV ERL_FLAGS="+JPperf true"
 
 # install mix dependencies
 COPY mix.exs mix.lock ./
@@ -80,16 +80,14 @@ RUN apt-get update -y && \
     && apt-get clean && rm -f /var/lib/apt/lists/*_*
 
 ARG MIX_ENV=prod
-ARG SECRET_KEY_BASE
 
 WORKDIR /deploy/
 ENV HOME=/deploy
 ENV MIX_ENV=${MIX_ENV}
 
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
-ENV LC_ALL en_US.UTF-8
-ENV SECRET_KEY_BASE=${SECRET_KEY_BASE}
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+ENV LC_ALL=en_US.UTF-8
 
 # # Copying source code to the destination
 COPY --from=builder --chown=nobody:root /app_release/ ./
