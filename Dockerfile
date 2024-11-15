@@ -41,7 +41,8 @@ RUN mix local.hex --force && \
 # set build ENV
 ENV MIX_ENV="prod"
 # Add JPperf as workaround for the failure on building the code in Github actions
-ENV ERL_FLAGS="+JPperf true"
+# It should not be necessary with QEMU 8.1, and it introduces some security issues, so delete as as soon as possible
+# ENV ERL_FLAGS="+JMsingle true"
 
 # install mix dependencies
 COPY mix.exs mix.lock ./
