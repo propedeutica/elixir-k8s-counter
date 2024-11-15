@@ -40,12 +40,13 @@ RUN mix local.hex --force && \
 
 # set build ENV
 ENV MIX_ENV="prod"
+# Add JPperf as workaround for the failure on building the code in Github actions
 ENV ERL_FLAGS="+JPperf true"
 
 # install mix dependencies
 COPY mix.exs mix.lock ./
-RUN mix deps.get --only $MIX_ENV
-RUN mkdir config
+RUN mix deps.get --only $MIX_ENV &&\
+    mkdir config
 
 # copy compile-time config files before we compile dependencies
 # to ensure any relevant config change will trigger the dependencies
@@ -54,16 +55,12 @@ COPY config/config.exs config/${MIX_ENV}.exs config/
 RUN mix deps.compile
 
 COPY priv priv
-
 COPY lib lib
-
 COPY assets assets
 
-# compile assets
-RUN mix assets.deploy
-
-# Compile the release
-RUN mix compile
+# compile assets and then the release
+RUN mix assets.deploy &&\
+    mix compile
 
 # Changes to config/runtime.exs don't require recompiling the code
 COPY config/runtime.exs config/
