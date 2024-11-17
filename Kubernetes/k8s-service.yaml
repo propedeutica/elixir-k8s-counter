@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: counter-load-balancer
+  name: counter-load-balancer
+spec:
+  ports:
+    - name: 4000-4000
+      port: 4000
+      protocol: TCP
+      targetPort: 4000
+  selector:
+    app: k8s-counter-deploy
+  type: LoadBalancer
+status:
+  loadBalancer: {}
