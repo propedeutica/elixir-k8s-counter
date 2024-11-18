@@ -49,6 +49,7 @@ defmodule CounterWeb.CounterLive do
     ~H"""
     <.live_component module={CounterComponent} id="counter" val={@val} />
     <.live_component module={PresenceComponent} id="presence" present={@present} />
+    <h2 class="text-center pt-2 text-xl">Server: <%= Node.self %></h2>
     """
   end
 end
