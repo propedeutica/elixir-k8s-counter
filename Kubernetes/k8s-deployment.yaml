@@ -37,6 +37,16 @@ spec:
           env:
             - name: PHX_HOST
               value: raspberry5b.local # Make this the IP or CNAME of the main host or LB
+            - name: RELEASE_DISTRIBUTION
+              value: name
+            - name: NODE_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: RELEASE_NODE
+              value: "counter@$(NODE_IP)"
+            - name: DNS_CLUSTER_QUERY
+              value: "counter-headless-svc.default.svc.cluster.local"
           resources: {}
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File

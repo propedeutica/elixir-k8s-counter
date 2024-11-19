@@ -1,7 +1,7 @@
 defmodule Counter.Count do
   use GenServer
   alias Phoenix.PubSub
-  @name :count_server
+  @name {:global, :count_server}
 
   @start_value 0
 
