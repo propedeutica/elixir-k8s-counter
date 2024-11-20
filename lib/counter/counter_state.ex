@@ -12,7 +12,12 @@ defmodule Counter.Count do
   end
 
   def start_link(_opts) do
-    GenServer.start_link(__MODULE__, @start_value, name: @name)
+    with {:ok, pid} <- GenServer.start_link(__MODULE__, @start_value, name: @name) do
+      {:ok, pid}
+    else
+    {:error, {:already_started, pid}}-> {:ok, pid}
+    {:error, other} -> {:error, other}
+    end
   end
 
   def incr() do
